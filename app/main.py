@@ -1,5 +1,6 @@
 import time
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy import text
 
 # Import separated concerns
@@ -10,11 +11,17 @@ from app.database import AsyncSessionLocal
 from app.governance import sanitize_and_limit_sql, SecurityViolation
 from app.telemetry import run_performance_benchmark, BenchmarkResponse
 
+
 app = FastAPI(
     title=settings.APP_NAME,
     description="Enterprise Schema Discovery & Governance Middleware for AI Agents.",
     version=settings.APP_VERSION
 )
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """Redirects the homepage directly to the Swagger interactive documentation."""
+    return RedirectResponse(url="/docs")
 
 @app.post("/mcp/discover", response_model=DiscoverResponse, tags=["Discovery"])
 async def discover_schema(request: DiscoverRequest):
