@@ -1,30 +1,28 @@
 # Author: Thai Tran
-# DATABASE LAYER, CREATION, REPRESENTATION
-# INCLUDES AUTO-SEED DATABASE FOR DEMOING (NON-OFFICIAL)
+# Dynamic database pulling from 'Settings'.
+# Storage layer is strictly decoupled from configuration
 
 import asyncio
-from pathlib import Path
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
-DATA_DIR.mkdir(exist_ok=True)
-DB_PATH = DATA_DIR / "gps_records.db"
+# Import our centralized settings
+from app.config import settings
 
-DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+# 1. Connection Pool Safeguards configured via settings
 engine = create_async_engine(
-    DATABASE_URL, 
+    settings.DATABASE_URL, 
     echo=False,
-    pool_size=5,          # concurrent connections
+    pool_size=settings.DB_POOL_SIZE,
     max_overflow=0,       
-    pool_timeout=3.0      # Fast fail (3.0s default)
+    pool_timeout=settings.DB_POOL_TIMEOUT
 )
 
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 Base = declarative_base()
 
+# 2. Public Sector Entity Definitions
 class Claimant(Base):
     __tablename__ = "claimants"
     id = Column(Integer, primary_key=True, index=True)
@@ -46,7 +44,7 @@ class Appeal(Base):
     reason = Column(String)
     status = Column(String)
 
-# TEST TRIALS | AUTO SEED
+# 3. Automatic Seeding for the Demo
 async def init_db():
     from datetime import date
     async with engine.begin() as conn:
@@ -66,7 +64,7 @@ async def init_db():
         
         session.add_all([d1, d2, a1])
         await session.commit()
-        print(f"Database initialized and seeded successfully at: {DB_PATH}")
+        print(f"Database initialized and seeded successfully at: {settings.DB_PATH}")
 
 if __name__ == "__main__":
     asyncio.run(init_db())
