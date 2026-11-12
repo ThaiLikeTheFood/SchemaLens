@@ -1,3 +1,9 @@
+"""
+ Author: Thai Tran
+ Specialized purpose file to quantify tokanage and optimizations for time / savings.
+ Not relevant to main structure's performance, purely for reference
+"""
+
 import time
 import tiktoken
 from pydantic import BaseModel

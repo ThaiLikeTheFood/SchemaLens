@@ -1,5 +1,9 @@
-# In a production environment, this would dynamically introspect the database.
-# For our middleware demonstration, we use a static in-memory catalog graph.
+"""
+Author: Thai Tran
+
+ In a production environment, this would dynamically introspect the database.
+ For our middleware demonstration, we use a static in-memory catalog graph.
+"""
 SCHEMA_CATALOG = {
     "claimants": {
         "columns": ["id (INT, PK)", "ssn_hash (VARCHAR, UNIQUE)", "full_name (VARCHAR)", "claim_status (VARCHAR)"],

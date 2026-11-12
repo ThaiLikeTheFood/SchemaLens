@@ -1,16 +1,22 @@
-# Author: Thai Tran
-# Dynamic database pulling from 'Settings'.
-# Storage layer is strictly decoupled from configuration
+"""
+ Author: Thai Tran
+ 
+ Dynamic database pulling from 'Settings'.
+ Storage layer is strictly decoupled from configuration.
+
+ Specific version handles socket exhaustion by pulling connection on query 
+ and running independently before reconnecting to connection pool.
+ SQLAlchemy AsyncSession is also leveraged to prevent traffic spike stalling FastAPI
+"""
 
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date
 
-# Import our centralized settings
 from app.config import settings
 
-# 1. Connection Pool Safeguards configured via settings
+# Connection Pool Safeguards configured via settings
 engine = create_async_engine(
     settings.DATABASE_URL, 
     echo=False,
@@ -22,7 +28,7 @@ engine = create_async_engine(
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 Base = declarative_base()
 
-# 2. Public Sector Entity Definitions
+# Entity Definitions
 class Claimant(Base):
     __tablename__ = "claimants"
     id = Column(Integer, primary_key=True, index=True)
@@ -44,7 +50,7 @@ class Appeal(Base):
     reason = Column(String)
     status = Column(String)
 
-# 3. Automatic Seeding for the Demo
+# Automatic Seeding for the Demo
 async def init_db():
     from datetime import date
     async with engine.begin() as conn:

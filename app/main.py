@@ -1,9 +1,17 @@
+"""
+ Author: Thai Tran
+ 
+ This module is the Interaction layer between the agent and database defining strict RESTful endpoints and utilizing appropriate contracts.
+ utilizing FastAPI as an interactive interface with Pydantic cleaning, SQLAlchemy is the bridge to the database
+ This module handles business logic by assigning business logic to specialized sub-modules
+"""
+
+
 import time
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy import text
 
-# Import separated concerns
 from app.config import settings
 from app.schemas import DiscoverRequest, DiscoverResponse, ExecuteRequest, ExecuteResponse
 from app.catalog import SCHEMA_CATALOG
@@ -52,7 +60,6 @@ async def execute_query(request: ExecuteRequest):
     warnings = []
 
     try:
-        # Use our centralized setting for the maximum row limit
         safe_sql = sanitize_and_limit_sql(request.sql_query, max_limit=settings.MAX_QUERY_LIMIT)
         if safe_sql != request.sql_query:
             warnings.append(f"Query rewritten: Deterministic LIMIT {settings.MAX_QUERY_LIMIT} automatically applied.")

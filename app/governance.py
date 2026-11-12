@@ -1,7 +1,11 @@
-# Author: Thai Tran
-# SECURITY AND MIDDLEWARE LAYER
-# THIS LAYER HANDLES EVERY SQL STRING THE AI AGENT RECEIVES.
-# UTILIZE AST OVER REGEX TO PREVENT PROMPT ENGINEERING
+"""
+Author: Thai Tran
+
+This layer handles the security and implements guardrails that accomodate agentic processes
+Utilizing sqlglot, recieved querries are parsed and returned with error if failed or limit reached.
+AST is implemented over regex to sanitize malicious querries, ast.walk() will run through nested
+to scan for any remaining verbs.
+"""
 
 import sqlglot
 from sqlglot import exp
@@ -35,7 +39,7 @@ def sanitize_and_limit_sql(raw_sql: str, max_limit: int = 100) -> str:
         if isinstance(node, forbidden_nodes):
             raise SecurityViolation(f"Destructive operation detected and blocked: {node.key}")
 
-    # 4. Deterministic LIMIT injection
+    # LIMIT injection
     limit_node = ast.args.get("limit")
     if limit_node is None:
         # If no limit exists, inject our max_limit

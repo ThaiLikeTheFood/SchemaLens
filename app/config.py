@@ -1,3 +1,15 @@
+"""
+Author: Thai Tran
+
+Settings sub-module that other classes pull from.
+
+DEFAULT:
+MAX_QUERY_LIMIT: int = 100
+DB_POOL_SIZE: int = 5
+DB_POOL_TIMEOUT: float = 3.0
+
+"""
+
 from pathlib import Path
 
 class Settings:
